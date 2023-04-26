@@ -4,3 +4,4 @@
 [submodule "thirdparty/Kontiki"]
 	path = thirdparty/Kontiki
 	url = https://github.com/jun-zhang-cyngn/Kontiki.git
+	branch = feature/range_factor
