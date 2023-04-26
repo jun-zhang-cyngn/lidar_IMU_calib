@@ -16,6 +16,7 @@
 
         <param name="topic_imu"         type="string"   value="$(arg topic_imu)" />
         <param name="topic_lidar"       type="string"   value="/velodyne_packets" />
+        <!-- <param name="topic_lidar"       type="string"   value="/ouster/top/points" /> -->
         <param name="LidarModel"        type="string"   value="$(arg lidar_model)" />
         <param name="path_bag"          type="string"   value="$(arg path_bag)" />
         <param name="bag_start"         type="double"   value="$(arg bag_start)" />

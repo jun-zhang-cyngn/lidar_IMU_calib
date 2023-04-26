@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-bag_path="/home/cyngn/catkin_li_calib/data"
+bag_path="/media/sf_vbox_share/"
 
 outdoor_sync_bag_name=(
 #"Court-01.bag"
@@ -11,16 +11,16 @@ outdoor_sync_bag_name=(
 )
 
 indoor_sync_bag_name=(
+# "figure_8_2023-03-30-19-31-11_0.bag"
 "Garage-01.bag"
-#"Garage-02.bag"
 #"Garage-03.bag"
 #"Garage-04.bag"
 #"Garage-05.bag"
 )
 
 imu_topic_name=(
+# "/cyngn/imu/data"
 "/imu1/data_sync"
-#"/imu2/data_sync"
 #"/imu3/data_sync"
 )
 

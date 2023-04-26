@@ -32,6 +32,7 @@
 #include <kontiki/measurements/lidar_surfel_point.h>
 #include <kontiki/measurements/orientation_measurement.h>
 #include <kontiki/measurements/position_measurement.h>
+#include <kontiki/measurements/lidar_extrinsincs_range.h>
 
 #include <utils/dataset_reader.h>
 #include <core/surfel_association.h>
@@ -49,9 +50,10 @@ class TrajectoryManager {
   using R3TrajEstimator    = kontiki::TrajectoryEstimator<kontiki::trajectories::UniformR3SplineTrajectory>;
   using SplitTrajEstimator = kontiki::TrajectoryEstimator<kontiki::trajectories::SplitTrajectory>;
 
-  using GyroMeasurement    = kontiki::measurements::GyroscopeMeasurement<IMUSensor>;
-  using AccelMeasurement   = kontiki::measurements::AccelerometerMeasurement<IMUSensor>;
-  using SurfMeasurement         = kontiki::measurements::LiDARSurfelPoint<LiDARSensor>;
+  using GyroMeasurement      = kontiki::measurements::GyroscopeMeasurement<IMUSensor>;
+  using AccelMeasurement     = kontiki::measurements::AccelerometerMeasurement<IMUSensor>;
+  using SurfMeasurement      = kontiki::measurements::LiDARSurfelPoint<LiDARSensor>;
+  using LiDARExtrinsicsRange = kontiki::measurements::LiDARExtrinsicsRange<LiDARSensor>;
 
   using OrientationMeasurement  = kontiki::measurements::OrientationMeasurement;
   using PositionMeasurement     = kontiki::measurements::PositionMeasurement;
@@ -120,6 +122,11 @@ private:
   void addSurfMeasurement(
           std::shared_ptr<kontiki::TrajectoryEstimator<TrajectoryModel>> estimator,
           const SurfelAssociation::Ptr surfel_association);
+
+  template <typename TrajectoryModel>
+  void addLiDARExtrinsicRange(
+          std::shared_ptr<kontiki::TrajectoryEstimator<TrajectoryModel>> estimator,
+          double range_m);
 
   template <typename TrajectoryModel>
   void addCallback(

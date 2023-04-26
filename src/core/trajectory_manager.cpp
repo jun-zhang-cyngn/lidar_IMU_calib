@@ -84,6 +84,8 @@ void TrajectoryManager::trajInitFromSurfel(
   addGyroscopeMeasurements(estimator_split);
   addAccelerometerMeasurement(estimator_split);
   addSurfMeasurement(estimator_split, surfels_association);
+  addLiDARExtrinsicRange(estimator_split, 0.20);
+
 
   // addCallback(estimator_split);
 
@@ -199,6 +201,15 @@ void TrajectoryManager::addSurfMeasurement(
     surfelpoint_list_.push_back(msp);
     estimator->template AddMeasurement<SurfMeasurement>(msp);
   }
+}
+
+template <typename TrajectoryModel>
+void TrajectoryManager::addLiDARExtrinsicRange(
+        std::shared_ptr<kontiki::TrajectoryEstimator<TrajectoryModel>> estimator,
+        double range_m) {
+
+  auto ler = std::make_shared<LiDARExtrinsicsRange> (lidar_, -1, range_m);
+  estimator->template AddMeasurement<LiDARExtrinsicsRange>(ler);
 }
 
 template <typename TrajectoryModel>
