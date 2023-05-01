@@ -40,6 +40,7 @@
 #include <Eigen/Core>
 #include <fstream>
 #include <memory>
+#include <limits>
 
 namespace licalib {
 class TrajectoryManager {
@@ -77,10 +78,40 @@ public:
     traj_ = std::make_shared<kontiki::trajectories::SplitTrajectory>
             (knot_distance, knot_distance, traj_start_time, traj_start_time);
     initialTrajTo(traj_end_time);
+    
+    lidar_to_imu_x_set_ = false;
+    lidar_to_imu_x_min_ = -std::numeric_limits<double>::max();
+    lidar_to_imu_x_max_ =  std::numeric_limits<double>::max();
+    
+    lidar_to_imu_y_set_ = false;
+    lidar_to_imu_y_min_ = -std::numeric_limits<double>::max();
+    lidar_to_imu_y_max_ =  std::numeric_limits<double>::max();
+
+    lidar_to_imu_z_set_ = false;
+    lidar_to_imu_z_min_ = -std::numeric_limits<double>::max();
+    lidar_to_imu_z_max_ =  std::numeric_limits<double>::max();
   }
 
   void initialTrajTo(double max_time);
 
+  void setLiDARtoIMUTranslationXAxis(double min_val, double max_val) {
+    lidar_to_imu_x_set_ = true;
+    lidar_to_imu_x_min_ = min_val;
+    lidar_to_imu_x_max_ = max_val;
+  }
+
+  void setLiDARtoIMUTranslationYAxis(double min_val, double max_val) {
+    lidar_to_imu_y_set_ = true;
+    lidar_to_imu_y_min_ = min_val;
+    lidar_to_imu_y_max_ = max_val;
+  }
+
+  void setLiDARtoIMUTranslationZAxis(double min_val, double max_val) {
+    lidar_to_imu_z_set_ = true;
+    lidar_to_imu_z_min_ = min_val;
+    lidar_to_imu_z_max_ = max_val;
+  }
+  
   void feedIMUData(const IO::IMUData& data);
 
   void initialSO3TrajWithGyro();
@@ -150,6 +181,19 @@ private:
   std::vector< std::shared_ptr<GyroMeasurement>>  gyro_list_;
   std::vector< std::shared_ptr<AccelMeasurement>> accel_list_;
   std::vector< std::shared_ptr<SurfMeasurement>>  surfelpoint_list_;
+
+  // initial estimation of lidar to imu Z translation 
+  bool lidar_to_imu_x_set_;
+  double lidar_to_imu_x_min_;
+  double lidar_to_imu_x_max_;
+
+  bool lidar_to_imu_y_set_;
+  double lidar_to_imu_y_min_;
+  double lidar_to_imu_y_max_;
+
+  bool lidar_to_imu_z_set_;
+  double lidar_to_imu_z_min_;
+  double lidar_to_imu_z_max_;
 };
 }
 

@@ -67,6 +67,20 @@ void TrajectoryManager::trajInitFromSurfel(
   lidar_->set_relative_position(calib_param_manager->p_LinI);
   lidar_->LockRelativeOrientation(false);
   lidar_->LockRelativePosition(false);
+  if(lidar_to_imu_x_set_) {
+    lidar_->set_relative_position_minmax_x(true, lidar_to_imu_x_min_, lidar_to_imu_x_max_);
+    std::cout << "set the LinI position.x range: " << lidar_to_imu_x_min_ << "-> " << lidar_to_imu_x_max_ << "\n";
+  }
+  if(lidar_to_imu_y_set_) {
+    lidar_->set_relative_position_minmax_y(true, lidar_to_imu_y_min_, lidar_to_imu_y_max_);
+    std::cout << "set the LinI position.y range: " << lidar_to_imu_y_min_ << "-> " << lidar_to_imu_y_max_ << "\n";
+  }
+
+  if(lidar_to_imu_z_set_) {
+    lidar_->set_relative_position_minmax_z(true, lidar_to_imu_z_min_, lidar_to_imu_z_max_);
+    std::cout << "set the LinI position.z range: " << lidar_to_imu_z_min_ << "-> " << lidar_to_imu_z_max_ << "\n";
+  }
+
   if (opt_time_offset_ && time_offset_padding_ > 0) {
     lidar_->LockTimeOffset(false);
     lidar_->set_max_time_offset(time_offset_padding_);
@@ -84,7 +98,7 @@ void TrajectoryManager::trajInitFromSurfel(
   addGyroscopeMeasurements(estimator_split);
   addAccelerometerMeasurement(estimator_split);
   addSurfMeasurement(estimator_split, surfels_association);
-  addLiDARExtrinsicRange(estimator_split, 0.20);
+  // addLiDARExtrinsicRange(estimator_split, 0.20);
 
 
   // addCallback(estimator_split);

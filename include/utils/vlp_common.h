@@ -32,6 +32,7 @@
 
 #include <utils/pcl_utils.h>
 
+#include <pcl/io/pcd_io.h>
 
 namespace licalib {
 
@@ -148,12 +149,13 @@ public:
     }
   }
 
-
   void unpack_scan(const sensor_msgs::PointCloud2::ConstPtr &lidarMsg,
                    TPointCloud &outPointCloud) const {
-    VPointCloud temp_pc;
-    pcl::fromROSMsg(*lidarMsg, temp_pc);
 
+    pcl::PointCloud<licalib::OusterPoint> temp_pc;
+    // VPointCloud temp_pc;
+    pcl::fromROSMsg(*lidarMsg, temp_pc);
+  
     outPointCloud.clear();
     outPointCloud.header = pcl_conversions::toPCL(lidarMsg->header);
     outPointCloud.height = temp_pc.height;
@@ -161,7 +163,7 @@ public:
     outPointCloud.is_dense = false;
     outPointCloud.resize(outPointCloud.height * outPointCloud.width);
 
-    double timebase = lidarMsg->header.stamp.toSec();
+    double timebase_ns = lidarMsg->header.stamp.toSec() * 1e9;
     for (int h = 0; h < temp_pc.height; h++) {
       for (int w = 0; w < temp_pc.width; w++) {
         TPoint point;
@@ -169,10 +171,14 @@ public:
         point.y = temp_pc.at(w,h).y;
         point.z = temp_pc.at(w,h).z;
         point.intensity = temp_pc.at(w,h).intensity;
-        point.timestamp = timebase + getExactTime(h,w);
+        // point.timestamp = timebase_ns + getExactTime(h,w);
+        point.timestamp = 1.0 * (timebase_ns + temp_pc.at(w,h).t) / 1e9;
         outPointCloud.at(w,h) = point;
       }
     }
+
+    // std::string fname = "/media/sf_vbox_share/" + std::to_string(timebase_ns/1e9) + ".pcd";
+    // pcl::io::savePCDFileASCII (fname, outPointCloud);
   }
 
 
@@ -184,7 +190,7 @@ private:
   void setParameters(ModelType modelType) {
     m_modelType = modelType;
     m_config.max_range = 150;
-    m_config.min_range = 0.6;
+    m_config.min_range = 1.0;
     m_config.min_angle = 0;
     m_config.max_angle = 36000;
     // Set up cached values for sin and cos of all the possible headings

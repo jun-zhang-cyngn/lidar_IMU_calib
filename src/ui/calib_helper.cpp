@@ -31,7 +31,7 @@ namespace licalib {
 CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
         : calib_step_(Start),
           iteration_step_(0),
-          opt_time_offset_(false),
+          opt_time_offset_(true),
           plane_lambda_(0.6),
           ndt_resolution_(0.5),
           associated_radius_(0.05) {
@@ -51,10 +51,12 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
   nh.param<double>("time_offset_padding", time_offset_padding, 0.015);
   nh.param<double>("knot_distance", knot_distance, 0.02);
 
+
+  // associated_radius_ = 0.075; 
+  ndt_resolution_ = 0.5;
   if (!createCacheFolder(bag_path_)) {
     calib_step_ = Error;
   }
-
   {
     std::string lidar_model;
     nh.param<std::string>("LidarModel", lidar_model, "VLP_16");
@@ -121,10 +123,15 @@ void CalibrHelper::Initialization() {
     if (lidar_odom_->get_odom_data().size() < 30
         || (lidar_odom_->get_odom_data().size() % 10 != 0))
       continue;
+
+    std::cout << "[Initialization] estimating rotation...\n";
     if (rotation_initializer_->EstimateRotation(traj_manager_,
                                                 lidar_odom_->get_odom_data())) {
       Eigen::Quaterniond qItoLidar = rotation_initializer_->getQ_ItoS();
+      Eigen::Vector3d pLidartoI = Eigen::Vector3d::Zero();
+      pLidartoI << -0.1, 0.0, 1.24;
       traj_manager_->getCalibParamManager()->set_q_LtoI(qItoLidar.conjugate());
+      traj_manager_->getCalibParamManager()->set_p_LinI(pLidartoI);
 
       Eigen::Vector3d euler_ItoL = qItoLidar.toRotationMatrix().eulerAngles(0,1,2);
       std::cout << "[Initialization] Done. Euler_ItoL initial degree: "
@@ -133,8 +140,19 @@ void CalibrHelper::Initialization() {
       break;
     }
   }
-  if (calib_step_ != InitializationDone)
-    ROS_WARN("[Initialization] fails.");
+  if (calib_step_ != InitializationDone) {
+    const double roll_deg = 0;
+    const double pitch_deg = 20;
+    const double yaw_deg = 0;
+    ROS_WARN("[Initialization] fails. Using manual initialization");
+    std::cout << "Init LtoI RPY deg [" << roll_deg << ", " << pitch_deg << ", " << yaw_deg << "]\n";
+    rotation_initializer_->ManualInitializationLtoI(roll_deg, pitch_deg, yaw_deg);
+    calib_step_ = InitializationDone;
+  }
+
+  traj_manager_->setLiDARtoIMUTranslationXAxis(-0.15, -0.08);
+  traj_manager_->setLiDARtoIMUTranslationYAxis(-0.05, 0.05);
+  traj_manager_->setLiDARtoIMUTranslationZAxis(1.1, 1.24);
 }
 
 void CalibrHelper::DataAssociation() {
@@ -151,7 +169,7 @@ void CalibrHelper::DataAssociation() {
   } else if (BatchOptimizationDone == calib_step_ || RefineDone == calib_step_) {
     scan_undistortion_->undistortScanInMap();
 
-    plane_lambda_ = 0.7;
+    plane_lambda_ = 0.5;
     surfel_association_->setPlaneLambda(plane_lambda_);
     auto ndt_omp = LiDAROdometry::ndtInit(ndt_resolution_);
     ndt_omp->setInputTarget(scan_undistortion_->get_map_cloud());
@@ -206,6 +224,12 @@ void CalibrHelper::Refinement() {
   iteration_step_++;
   std::cout << "\n================ Iteration " << iteration_step_ << " ==================\n";
 
+  Eigen::Quaterniond qItoLidar = rotation_initializer_->getQ_ItoS();
+  Eigen::Vector3d pLidartoI = Eigen::Vector3d::Zero();
+  pLidartoI << -0.1, 0.0, 1.24;
+  traj_manager_->getCalibParamManager()->set_q_LtoI(qItoLidar.conjugate());
+  traj_manager_->getCalibParamManager()->set_p_LinI(pLidartoI);
+  
   DataAssociation();
   if (DataAssociationDone != calib_step_) {
     ROS_WARN("[Refinement] Need status: DataAssociationDone.");

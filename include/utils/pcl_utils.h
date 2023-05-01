@@ -20,6 +20,7 @@
  */
 #ifndef PCL_UTILS_H
 #define PCL_UTILS_H
+#define PCL_NO_PRECOMPILE
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/common/transforms.h>
@@ -43,6 +44,19 @@ struct PointXYZIT {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW // make sure our new allocators are aligned
 } EIGEN_ALIGN16;
 
+
+struct  OusterPoint {
+    PCL_ADD_POINT4D;
+    float intensity;
+    uint32_t t;
+    uint16_t reflectivity;
+    uint8_t  ring;
+    uint16_t ambient;
+    uint32_t range;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+} EIGEN_ALIGN16;
+
+
 inline void downsampleCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr in_cloud,
                             pcl::PointCloud<pcl::PointXYZI>::Ptr out_cloud,
                             float in_leaf_size) {
@@ -61,7 +75,22 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(licalib::PointXYZIT,
                                   (float, intensity, intensity)
                                   (double, timestamp, timestamp))
 
+POINT_CLOUD_REGISTER_POINT_STRUCT(licalib::OusterPoint,
+    (float, x, x)
+    (float, y, y)
+    (float, z, z)
+    (float, intensity, intensity)
+    // use std::uint32_t to avoid conflicting with pcl::uint32_t
+    (std::uint32_t, t, t)
+    (std::uint16_t, reflectivity, reflectivity)
+    (std::uint8_t, ring, ring)
+    (std::uint16_t, ambient, ambient)
+    (std::uint32_t, range, range)
+)
+
+
 typedef licalib::PointXYZIT TPoint;
+typedef licalib::OusterPoint OusterPointXYZIT;
 typedef pcl::PointCloud<TPoint> TPointCloud;
 
 inline void TPointCloud2VPointCloud(TPointCloud::Ptr input_pc,

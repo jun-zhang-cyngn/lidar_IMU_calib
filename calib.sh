@@ -11,21 +11,21 @@ outdoor_sync_bag_name=(
 )
 
 indoor_sync_bag_name=(
-# "figure_8_2023-03-30-19-31-11_0.bag"
-"Garage-01.bag"
+"2023-04-26-20-05-36.bag"
+# "Garage-01.bag"
 #"Garage-03.bag"
 #"Garage-04.bag"
 #"Garage-05.bag"
 )
 
 imu_topic_name=(
-# "/cyngn/imu/data"
-"/imu1/data_sync"
+"/cyngn/imu/data"
+# "/imu1/data_sync"
 #"/imu3/data_sync"
 )
 
-bag_start=1
-bag_durr=30
+bag_start=45
+bag_durr=40
 scan4map=15
 timeOffsetPadding=0.015
 
@@ -36,7 +36,7 @@ sync_bag_name=(${outdoor_sync_bag_name[*]} ${indoor_sync_bag_name[*]})
 for i in "${!sync_bag_name[@]}"; do
     let bag_count=bag_count+1
 
-    ndtResolution=0.5	# indoor
+    ndtResolution= 0.5	# indoor
     if [ $bag_count -lt ${#outdoor_sync_bag_name[*]} ]; then
         ndtResolution=1.0 # outdoor
     fi

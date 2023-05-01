@@ -43,6 +43,16 @@ public:
   bool EstimateRotation(TrajectoryManager::Ptr traj_manager,
                         const Eigen::aligned_vector<LiDAROdometry::OdomData>& odom_data);
 
+
+  void ManualInitializationLtoI(double roll_deg, double pitch_deg, double yaw_deg) {
+    Eigen::Quaterniond q;
+    q =   Eigen::AngleAxisd(roll_deg  *  M_PI / 180.0, Eigen::Vector3d::UnitX())
+        * Eigen::AngleAxisd(pitch_deg *  M_PI / 180.0, Eigen::Vector3d::UnitY())
+        * Eigen::AngleAxisd(yaw_deg   *  M_PI / 180.0, Eigen::Vector3d::UnitZ());
+    q_ItoS_est_ = q.conjugate();
+    rotaion_initialized_ = true;
+  }
+
   bool isInitialized() {
     return rotaion_initialized_;
   }

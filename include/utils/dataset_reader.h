@@ -120,8 +120,13 @@ public:
       view_full.addQuery(*data_->bag_);
       ros::Time time_init = view_full.getBeginTime();
       time_init += ros::Duration(bag_start);
+      
       ros::Time time_finish = (bag_durr < 0)?
                               view_full.getEndTime() : time_init + ros::Duration(bag_durr);
+      
+      std::cout << "time start: " << time_init << "\n";
+      std::cout << "  time end: " << time_finish << "\n";
+
       view.addQuery(*data_->bag_, rosbag::TopicQuery(topics), time_init, time_finish);
     }
 
@@ -184,6 +189,12 @@ public:
            && scan_timestamps.back() > imu_data.front().timestamp
            && "Unvalid dataset. Check your dataset.. ");
 
+    std::cout<<std::fixed << "scan_timestamps start : "<< scan_timestamps_.front() << std::endl;
+    std::cout<<std::fixed << "scan_timestamps   end : "<< scan_timestamps_.back() << std::endl;
+
+    std::cout<<std::fixed << "imu start : "<< imu_data_.front().timestamp << std::endl;
+    std::cout<<std::fixed << "imu   end : "<< imu_data_.back().timestamp << std::endl;
+
     if (scan_timestamps_.front() > imu_data_.front().timestamp) {
       start_time_ = scan_timestamps_.front();
       while (imu_data_.front().timestamp < start_time_)
@@ -206,7 +217,10 @@ public:
       scan_data_.pop_back();
       scan_timestamps_.pop_back();
     }
-    //std::cout<<"after adjust --> imu size : "<< imu_data_.size() << std::endl;
+    std::cout<<"after adjust --> imu size : "<< imu_data_.size() << std::endl;
+    std::cout<<std::fixed << "after adjust --> start_time_ : "<< start_time_ << std::endl;
+    std::cout<<std::fixed << "after adjust --> end_time_   : "<< end_time_ << std::endl;
+    
   }
 
   void reset() { data_.reset(); }

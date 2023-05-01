@@ -20,6 +20,7 @@
  */
 #include <core/inertial_initializer.h>
 #include <utils/math_utils.h>
+#include <math.h>
 
 namespace licalib {
 
@@ -71,11 +72,12 @@ bool InertialInitializer::EstimateRotation(
   Eigen::Quaterniond q_ItoS_est(x);
   Eigen::Vector4d cov = svd.singularValues();
 
-  if (cov(2) > 0.25) {
+  std::cout << cov(2)  << "\n";
+  if (cov(2) > 0.2) {
     q_ItoS_est_ = q_ItoS_est;
     rotaion_initialized_ = true;
     return true;
-  } else {
+  } else { 
     return false;
   }
 }
